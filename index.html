@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valentine Proposal 💖</title>
+
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* Reset and body */
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+    height: 100%;
+  }
+
+  /* Fullscreen video background */
+  #bgVideo, #loveVideo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Overlay for readability */
+  #overlay {
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+    z-index: -1;
+  }
+
+  /* Proposal card */
+  #proposalCard {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 25px;
+    padding: 50px 40px;
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+    transition: opacity 1s ease, transform 1s ease;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  #proposalCard.hidden {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+    pointer-events: none;
+  }
+
+  #proposalCard h1 {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #e91e63;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+  }
+
+  #proposalCard p {
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    color: #555;
+    line-height: 1.4;
+  }
+
+  #countdown {
+    font-weight: 600;
+    margin-bottom: 25px;
+    font-size: 1em;
+    color: #9c27b0;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 12px 28px;
+    margin: 10px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  }
+
+  .btn-yes {
+    background: linear-gradient(45deg, #ff4081, #e91e63);
+    color: white;
+    font-weight: bold;
+  }
+
+  .btn-yes:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(233,30,99,0.4);
+  }
+
+  .btn-no {
+    background: #bdbdbd;
+    color: white;
+    position: relative;
+  }
+
+  .btn-no:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(158,158,158,0.4);
+  }
+
+  /* Acceptance screen */
+  #acceptance {
+    position: absolute;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    display: flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction: column;
+    color:white;
+    text-align:center;
+    font-size:2em;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 1s ease;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  #acceptance.show {
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  #acceptance h1 {
+    font-size: 3em;
+    color: #ff4081;
+    text-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+    margin-bottom: 20px;
+  }
+
+  #acceptance p {
+    font-size: 1em;
+    line-height: 1.6;
+    max-width: 700px;
+    text-align: center;
+    color: #fff;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+    margin-bottom: 15px;
+  }
+
+  #acceptance .greeting {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+  }
+
+  /* Floating hearts */
+  .heart {
+    position: fixed;
+    width: 25px;
+    height: 25px;
+    background: red;
+    transform: rotate(45deg);
+    left: 50%;
+    top: 100vh;
+    opacity: 0.7;
+    animation: floatUp linear infinite;
+    z-index: 1;
+  }
+
+  .heart::before,
+  .heart::after {
+    content: "";
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background: red;
+    border-radius: 50%;
+  }
+
+  .heart::before { top: -12.5px; left: 0; }
+  .heart::after { left: -12.5px; top: 0; }
+
+  @keyframes floatUp {
+    0% { transform: translate(0,0) rotate(45deg); opacity:0.8; }
+    100% { transform: translate(calc(-50px + 100px*var(--x)), -100vh) rotate(45deg); opacity:0; }
+  }
+
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    opacity: 0.9;
+    z-index: 2;
+    pointer-events: none;
+    animation: confettiFall linear forwards;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(-10px) rotate(0deg); }
+    100% { transform: translateY(100vh) rotate(360deg); opacity:0; }
+  }
+</style>
+</head>
+<body>
+
+<video id="bgVideo" src="wallpaper.mp4" autoplay muted loop playsinline></video>
+<video id="loveVideo" src="love.mp4" muted loop playsinline style="display:none;"></video>
+<div id="overlay"></div>
+
+<div id="proposalCard">
+  <h1>Miss Babum Nimasow,</h1>
+  <p>Will you be my Valentine? 💖</p>
+  <div id="countdown"></div>
+  <button class="btn btn-yes" id="yesBtn">YES</button>
+  <button class="btn btn-no" id="noBtn">NO</button>
+</div>
+
+<div id="acceptance">
+  <h1>Yay! 💖</h1>
+  <p class="greeting">Happy Valentine's Day, My Betuuuu 💖</p>
+  <p>
+    Sorry for making u sad baccha, I know sometimes I can get irritating and sometimes I also say things which hurt u but I don't mean them. Please ignore them. Thank you for making me feel loved and being with me when I feel alone. This past month without you was not easy and I missed u a lot but finally You are coming and I am very excited to Hug you, Kiss You and Embrace you and do all kinds of exciting things with you. I also know it has been a difficult time for u as well and u missed me a lot more. I just want to say I LOVE U Baccha and I know you are a strong woman u can fight your own battles but I am also here for u.
+  </p>
+</div>
+
+<audio id="bgMusic" src="music.mp3"></audio>
+<audio id="voiceMsg" src="voice.mp3"></audio>
+
+<script>
+  const proposalCard = document.getElementById('proposalCard');
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const countdownEl = document.getElementById('countdown');
+  const acceptance = document.getElementById('acceptance');
+  const bgMusic = document.getElementById('bgMusic');
+  const voiceMsg = document.getElementById('voiceMsg');
+  const bgVideo = document.getElementById('bgVideo');
+  const loveVideo = document.getElementById('loveVideo');
+  const body = document.body;
+
+  // Countdown
+  function updateCountdown() {
+    const now = new Date();
+    let year = now.getFullYear();
+    const valentine = new Date(year, 1, 14, 0, 0, 0);
+    if (now > valentine) year++;
+    const nextValentine = new Date(year, 1, 14);
+    const diff = nextValentine - now;
+
+    const days = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff / (1000*60*60)) % 24);
+    const minutes = Math.floor((diff / (1000*60)) % 60);
+
+    countdownEl.textContent = `${days}d ${hours}h ${minutes}m until Valentine’s Day`;
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 60000);
+
+  // NO button playful movement
+  function moveNoBtn() {
+    const cardRect = proposalCard.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
+    const padding = 10;
+    const maxX = cardRect.width - btnRect.width - padding;
+    const maxY = cardRect.height - btnRect.height - padding;
+    const x = Math.random()*maxX;
+    const y = Math.random()*maxY;
+    noBtn.style.position = 'absolute';
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+  }
+  noBtn.addEventListener('mouseenter', moveNoBtn);
+  noBtn.addEventListener('touchstart', moveNoBtn);
+
+  // YES button click
+  yesBtn.addEventListener('click', () => {
+    proposalCard.classList.add('hidden');
+    setTimeout(() => acceptance.classList.add('show'), 500);
+
+    // Pause and hide wallpaper video
+    bgVideo.pause();
+    bgVideo.style.display = 'none';
+
+    // Show and play love video
+    loveVideo.style.display = 'block';
+    loveVideo.style.position = 'fixed';
+    loveVideo.style.top = '0';
+    loveVideo.style.left = '0';
+    loveVideo.style.width = '100%';
+    loveVideo.style.height = '100%';
+    loveVideo.style.objectFit = 'cover';
+    loveVideo.style.zIndex = '-3';
+    loveVideo.play().catch(()=>{});
+
+    // Play music and voice
+    bgMusic.play().catch(()=>{});
+    voiceMsg.play().catch(()=>{});
+
+    // Launch confetti
+    launchConfetti();
+  });
+
+  // Floating hearts
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.setProperty('--x', Math.random());
+    heart.style.left = Math.random()*100 + 'vw';
+    heart.style.top = '100vh';
+    heart.style.animationDuration = (5 + Math.random()*5) + 's';
+    body.appendChild(heart);
+    setTimeout(() => heart.remove(), 10000);
+  }
+  setInterval(createHeart, 300);
+
+  // Confetti
+  function launchConfetti() {
+    for (let i=0;i<100;i++){
+      const conf = document.createElement('div');
+      conf.classList.add('confetti');
+      conf.style.left = Math.random()*100 + 'vw';
+      conf.style.background = `hsl(${Math.random()*360}, 100%, 50%)`;
+      conf.style.animationDuration = (2+Math.random()*3)+'s';
+      body.appendChild(conf);
+      setTimeout(() => conf.remove(), 5000);
+    }
+  }
+
+  // Autoplay fix for audio (mobile)
+  function enableAudio() {
+    bgMusic.play().catch(()=>{});
+    voiceMsg.play().catch(()=>{});
+    document.removeEventListener('click', enableAudio);
+  }
+  document.addEventListener('click', enableAudio);
+</script>
+</body>
+</html>
